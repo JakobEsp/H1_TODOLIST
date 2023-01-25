@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace H1_TODOLIST
     internal class Menu
     {
         ConsoleKey lastInput; 
-        List<ToDoItem> toDoItems;
+        List<ToDoItem> toDoItems = new();
         //Menu
         public void ShowMenu()
         {
@@ -26,6 +27,7 @@ namespace H1_TODOLIST
                         CreateToDo();
                         break;
                     case ConsoleKey.D3:
+                        DeleteToDo();
                         break;
                     case ConsoleKey.D4:
                         break;
@@ -39,12 +41,12 @@ namespace H1_TODOLIST
         //View TodoList
         void ViewToDoList()
         {
-            Console.WriteLine("Todo list:\n");
+            Console.WriteLine("\nTodo list:\n");
             if(toDoItems != null)
             {
                 foreach (ToDoItem item in toDoItems)
                 {
-                    Console.WriteLine($"Id [{toDoItems.IndexOf(item)}] {item.whatToDo}");
+                    Console.WriteLine($"[{toDoItems.IndexOf(item)}] {item.whatToDo} \n   When: {item.deadLine}");
                 }
             }
         }
@@ -55,12 +57,11 @@ namespace H1_TODOLIST
             Console.Clear();
             string whatToDo;
             DateTime deadLine;
-            long repeat;
+            long? repeat;
             bool isFavourite = false;
             
             while (true)
             {
-                
                 Console.WriteLine("What do you want to do?");
                 whatToDo = Console.ReadLine();
                 if (whatToDo.Trim() != "")
@@ -142,13 +143,60 @@ namespace H1_TODOLIST
                 Console.Clear();
                 Console.WriteLine("Press 1 or 2 please");
             }
+            ToDoItem newItem = new ToDoItem(DateTime.Now, deadLine, null, whatToDo, false, isFavourite);
+            toDoItems.Add(newItem);
+            Console.Clear();
+            lastInput = default;
+            ShowMenu();
         }
 
         //Read Todo Item
+        void ReadToDo()
+        {
+            int id;
+            Console.WriteLine("Write id of the Todo you would like to read");
+            if(int.TryParse(Console.ReadLine().Trim(), out id)){
+                ToDoItem standIn = toDoItems[id];
+                Console.WriteLine($"\n" +
+                    $"Task: {standIn.whatToDo}\n" +
+                    $"Status: {(standIn.isDone ? "Finished" : "Unfinished")}\n" +
+                    $"Made {standIn.created}");
+            }
+            
+            
+        }
 
         //Edit Todo Item
         
         //Delete an item
+        void DeleteToDo()
+        {
+            while(true)
+            {
+                int id;
+                bool valid = false;
+                ViewToDoList();
+                Console.WriteLine("Write the ID of the Todo that you would like to remove");
+                string input = Console.ReadLine().Trim();
+
+                if (Int32.TryParse(input, out id))
+                {
+                    if (id <= toDoItems.Count)
+                    {
+                        toDoItems.RemoveAt(id);
+                        valid= true;
+                    }
+                    else Console.WriteLine("invalid id");
+                }
+                else Console.WriteLine("could not parse");
+
+                if (valid){
+                    Console.WriteLine("Todo was deleted");
+                    lastInput = default;
+                    break;
+                }
+            }
+        }
 
         void GetInput()
         {
