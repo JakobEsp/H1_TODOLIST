@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace H1_TODOLIST
 {
@@ -14,7 +15,7 @@ namespace H1_TODOLIST
         //Menu
         public void ShowMenu()
         {
-            Console.WriteLine("[1]View Your Todo List [2]Create New Todo [3]Delete Todo [4]Edit Todo [5]Read Todo Info");
+            Console.WriteLine("[1]View Your Todo List [2]Create New Todo [3]Delete Todo [4]Edit Todo [5]Read Todo Item Info");
 
             if(lastInput != default)
             {
@@ -32,6 +33,7 @@ namespace H1_TODOLIST
                     case ConsoleKey.D4:
                         break;
                     case ConsoleKey.D5:
+                        ReadToDo();
                         break;
                 }          
             }              
@@ -155,18 +157,58 @@ namespace H1_TODOLIST
         {
             int id;
             Console.WriteLine("Write id of the Todo you would like to read");
-            if(int.TryParse(Console.ReadLine().Trim(), out id)){
-                ToDoItem standIn = toDoItems[id];
-                Console.WriteLine($"\n" +
-                    $"Task: {standIn.whatToDo}\n" +
-                    $"Status: {(standIn.isDone ? "Finished" : "Unfinished")}\n" +
-                    $"Made {standIn.created}");
+            while (true)
+            {
+                if (int.TryParse(Console.ReadLine().Trim(), out id))
+                {
+                    if (id <= toDoItems.Count)
+                    {
+                        ToDoItem standIn = toDoItems[id];
+                        Console.WriteLine($"\n" +
+                            $"Task: {standIn.whatToDo}\n" +
+                            $"Status: {(standIn.isDone ? "Finished" : "Unfinished")}\n" +
+                            $"Made: {standIn.created}\n" +
+                            $"Deadline: {standIn.deadLine}\n" +
+                            $"{(standIn.isFavorite ? "Favourite" : "")}");
+                        lastInput = default;
+                        break;
+                    }
+                    else Console.WriteLine("Invalid id");
+                }
+                else Console.WriteLine("Invalid input");
             }
-            
-            
         }
 
         //Edit Todo Item
+        void EditItem()
+        {
+            while (true)
+            {
+                int id;
+                bool valid = false;
+                ViewToDoList();
+                Console.WriteLine("Write the ID of the Todo that you would like to Edit");
+                string input = Console.ReadLine().Trim();
+
+                if (Int32.TryParse(input, out id))
+                {
+                    if (id <= toDoItems.Count)
+                    {
+                        ToDoItem standIn= toDoItems[id];
+                        Console.WriteLine($"\n" +
+                            $"Task: {standIn.whatToDo}\n" +
+                            $"Status: {(standIn.isDone ? "Finished" : "Unfinished")}\n" +
+                            $"Made: {standIn.created}\n" +
+                            $"Deadline: {standIn.deadLine}\n" +
+                            $"{(standIn.isFavorite ? "Favourite" : "")}");
+                        break;
+                    }
+                    else Console.WriteLine("invalid id");
+                }
+                else Console.WriteLine("could not parse");
+
+            }
+        }
         
         //Delete an item
         void DeleteToDo()
